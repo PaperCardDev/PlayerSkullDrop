@@ -5,3 +5,11 @@ api-version: 1.20
 author: Paper99
 description: 击杀其他玩家时，有概率掉落他的头颅；被闪电苦力怕炸死，有概率掉落自己的头颅。
 folia-supported: true
+
+commands:
+  player-skull-drop:
+    permission: player-skull-drop.command
+
+permissions:
+  player-skull-drop.command:
+    default: op

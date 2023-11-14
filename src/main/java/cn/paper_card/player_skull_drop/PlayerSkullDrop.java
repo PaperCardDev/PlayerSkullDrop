@@ -1,7 +1,12 @@
 package cn.paper_card.player_skull_drop;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -13,6 +18,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,6 +31,16 @@ public final class PlayerSkullDrop extends JavaPlugin {
     private final static String PATH_PROBABILITY_PLAYER = "probability.player";
     private final static String PATH_PROBABILITY_CREEPER = "probability.creeper";
 
+    private final @NotNull TextComponent prefix;
+
+    public PlayerSkullDrop() {
+        this.prefix = Component.text()
+                .append(Component.text("[").color(NamedTextColor.DARK_AQUA))
+                .append(Component.text(this.getName()).color(NamedTextColor.GOLD))
+                .append(Component.text("]").color(NamedTextColor.DARK_AQUA))
+                .build();
+    }
+
     @Override
     public void onEnable() {
         this.getServer().getPluginManager().registerEvents(new TheListener(), this);
@@ -32,6 +48,10 @@ public final class PlayerSkullDrop extends JavaPlugin {
         this.setProbabilityByPlayer(this.getProbabilityByPlayer());
         this.setProbabilityByCreeper(this.getProbabilityByCreeper());
         this.saveConfig();
+
+        new SkullCommand(this);
+
+        this.sendInfo(this.getServer().getConsoleSender(), "插件已启用");
     }
 
     @Override
@@ -52,7 +72,9 @@ public final class PlayerSkullDrop extends JavaPlugin {
         final SkullMeta skullMeta = (SkullMeta) itemStack.getItemMeta();
 
         skullMeta.setOwningPlayer(player);
-        skullMeta.setPlayerProfile(player.getPlayerProfile());
+
+        final PlayerProfile playerProfile = player.getPlayerProfile();
+        skullMeta.setPlayerProfile(playerProfile);
 
         // 显示名称
         itemStack.setItemMeta(skullMeta);
@@ -73,6 +95,30 @@ public final class PlayerSkullDrop extends JavaPlugin {
 
     void setProbabilityByCreeper(int value) {
         this.getConfig().set(PATH_PROBABILITY_CREEPER, value);
+    }
+
+    @NotNull Permission addPermission(@NotNull String name) {
+        final Permission permission = new Permission(name);
+        this.getServer().getPluginManager().addPermission(permission);
+        return permission;
+    }
+
+    void sendError(@NotNull CommandSender sender, @NotNull String error) {
+        sender.sendMessage(Component.text()
+                .append(this.prefix)
+                .appendSpace()
+                .append(Component.text(error).color(NamedTextColor.RED))
+                .build()
+        );
+    }
+
+    void sendInfo(@NotNull CommandSender sender, @NotNull String info) {
+        sender.sendMessage(Component.text()
+                .append(this.prefix)
+                .appendSpace()
+                .append(Component.text(info).color(NamedTextColor.GREEN))
+                .build()
+        );
     }
 
 
