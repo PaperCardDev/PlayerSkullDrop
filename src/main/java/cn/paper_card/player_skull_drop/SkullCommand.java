@@ -1,6 +1,6 @@
 package cn.paper_card.player_skull_drop;
 
-import cn.paper_card.mc_command.TheMcCommand;
+import cn.paper_card.mc_command.NewMcCommand;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -17,7 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-class SkullCommand extends TheMcCommand.HasSub {
+class SkullCommand extends NewMcCommand.HasSub {
 
     private final @NotNull PlayerSkullDrop plugin;
 
@@ -35,16 +35,16 @@ class SkullCommand extends TheMcCommand.HasSub {
 
         this.permission = Objects.requireNonNull(plugin.getServer().getPluginManager().getPermission(this.getLabel() + "." + "command"));
 
-        this.addSubCommand(new Get());
-        this.addSubCommand(new Reload());
+        this.addSub(new Get());
+        this.addSub(new Reload());
     }
 
     @Override
-    protected boolean canNotExecute(@NotNull CommandSender commandSender) {
-        return !commandSender.hasPermission(this.permission);
+    protected boolean canExecute(@NotNull CommandSender commandSender) {
+        return commandSender.hasPermission(this.permission);
     }
 
-    class Get extends TheMcCommand {
+    class Get extends NewMcCommand {
 
         private final @NotNull Permission permission;
 
@@ -54,8 +54,8 @@ class SkullCommand extends TheMcCommand.HasSub {
         }
 
         @Override
-        protected boolean canNotExecute(@NotNull CommandSender commandSender) {
-            return !commandSender.hasPermission(this.permission);
+        protected boolean canExecute(@NotNull CommandSender commandSender) {
+            return commandSender.hasPermission(this.permission);
         }
 
         @Override
@@ -116,9 +116,11 @@ class SkullCommand extends TheMcCommand.HasSub {
 
             return null;
         }
+
+
     }
 
-    class Reload extends TheMcCommand {
+    class Reload extends NewMcCommand {
 
         private final @NotNull Permission permission;
 
@@ -128,9 +130,10 @@ class SkullCommand extends TheMcCommand.HasSub {
         }
 
         @Override
-        protected boolean canNotExecute(@NotNull CommandSender commandSender) {
-            return !commandSender.hasPermission(this.permission);
+        protected boolean canExecute(@NotNull CommandSender commandSender) {
+            return commandSender.hasPermission(this.permission);
         }
+
 
         @Override
         public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
@@ -146,5 +149,4 @@ class SkullCommand extends TheMcCommand.HasSub {
             return null;
         }
     }
-
 }
