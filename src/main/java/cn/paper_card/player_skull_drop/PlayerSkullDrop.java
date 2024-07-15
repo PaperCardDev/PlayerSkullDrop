@@ -28,10 +28,10 @@ import java.util.Random;
 
 public final class PlayerSkullDrop extends JavaPlugin {
 
-    private final static String PATH_PROBABILITY_PLAYER = "probability.player";
-    private final static String PATH_PROBABILITY_CREEPER = "probability.creeper";
 
     private final @NotNull TextComponent prefix;
+
+    private final @NotNull ConfigManager configManager;
 
     public PlayerSkullDrop() {
         this.prefix = Component.text()
@@ -39,15 +39,17 @@ public final class PlayerSkullDrop extends JavaPlugin {
                 .append(Component.text(this.getName()).color(NamedTextColor.GOLD))
                 .append(Component.text("]").color(NamedTextColor.DARK_AQUA))
                 .build();
+
+        this.configManager = new ConfigManager(this);
     }
 
     @Override
     public void onEnable() {
-        this.getServer().getPluginManager().registerEvents(new TheListener(), this);
+        // 保持配置
+        this.configManager.getAll();
+        this.configManager.save();
 
-        this.setProbabilityByPlayer(this.getProbabilityByPlayer());
-        this.setProbabilityByCreeper(this.getProbabilityByCreeper());
-        this.saveConfig();
+        this.getServer().getPluginManager().registerEvents(new TheListener(), this);
 
         new SkullCommand(this);
 
@@ -56,7 +58,12 @@ public final class PlayerSkullDrop extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        this.saveConfig();
+        // 保存配置
+        this.configManager.save();
+    }
+
+    @NotNull ConfigManager getConfigManager() {
+        return this.configManager;
     }
 
     /**
@@ -81,21 +88,6 @@ public final class PlayerSkullDrop extends JavaPlugin {
         return itemStack;
     }
 
-    int getProbabilityByPlayer() {
-        return this.getConfig().getInt(PATH_PROBABILITY_PLAYER, 10);
-    }
-
-    void setProbabilityByPlayer(int value) {
-        this.getConfig().set(PATH_PROBABILITY_PLAYER, value);
-    }
-
-    int getProbabilityByCreeper() {
-        return this.getConfig().getInt(PATH_PROBABILITY_CREEPER, 10);
-    }
-
-    void setProbabilityByCreeper(int value) {
-        this.getConfig().set(PATH_PROBABILITY_CREEPER, value);
-    }
 
     @NotNull Permission addPermission(@NotNull String name) {
         final Permission permission = new Permission(name);
@@ -130,16 +122,22 @@ public final class PlayerSkullDrop extends JavaPlugin {
             this.playerLastDamager = new PlayerLastDamager();
         }
 
+        /**
+         * 生成随机数，范围[0,100）
+         * @return double
+         */
         private double randomDouble100() {
             return new Random(System.currentTimeMillis()).nextDouble() * 100.0;
         }
 
         private boolean randomDropByCreeper() {
-            return (this.randomDouble100() < getProbabilityByCreeper());
+            final int probability = configManager.getProbabilityByCreeper();
+            return (this.randomDouble100() < probability);
         }
 
         private boolean randomDropByPlayer() {
-            return (this.randomDouble100() < getProbabilityByPlayer());
+            final int probability = configManager.getProbabilityByPlayer();
+            return (this.randomDouble100() < probability);
         }
 
         @EventHandler

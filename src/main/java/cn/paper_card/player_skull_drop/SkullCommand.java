@@ -135,7 +135,7 @@ class SkullCommand extends TheMcCommand.HasSub {
         @Override
         public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
 
-            plugin.reloadConfig();
+            plugin.getConfigManager().reload();
             plugin.sendInfo(commandSender, "已重载配置");
 
             return true;
